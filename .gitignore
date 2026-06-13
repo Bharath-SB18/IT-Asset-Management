@@ -1,0 +1,5 @@
+venv/
+__pycache__/
+assets.db
+assets_report.xlsx
+employees_report.xlsx

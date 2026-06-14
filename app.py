@@ -1,3 +1,4 @@
+
 from flask import (
     Flask,
     render_template,
@@ -17,12 +18,15 @@ from werkzeug.security import (
 import sqlite3
 import os
 
+
 app = Flask(__name__)
 
 app.secret_key = "asset_management_secret"
 
 
+# =========================
 # DATABASE CONNECTION
+# =========================
 
 def get_db_connection():
 
@@ -33,7 +37,108 @@ def get_db_connection():
     return conn
 
 
+# =========================
+# CREATE DATABASE TABLES
+# =========================
+
+def create_tables():
+
+    conn = sqlite3.connect("assets.db")
+
+    cursor = conn.cursor()
+
+    # USERS TABLE
+
+    cursor.execute("""
+
+    CREATE TABLE IF NOT EXISTS users (
+
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        username TEXT UNIQUE,
+        password TEXT
+
+    )
+
+    """)
+
+    # ASSETS TABLE
+
+    cursor.execute("""
+
+    CREATE TABLE IF NOT EXISTS assets (
+
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        asset_name TEXT,
+        asset_type TEXT,
+        serial_number TEXT UNIQUE,
+        status TEXT
+
+    )
+
+    """)
+
+    # EMPLOYEES TABLE
+
+    cursor.execute("""
+
+    CREATE TABLE IF NOT EXISTS employees (
+
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        employee_name TEXT,
+        department TEXT
+
+    )
+
+    """)
+
+    # ASSIGNMENTS TABLE
+
+    cursor.execute("""
+
+    CREATE TABLE IF NOT EXISTS assignments (
+
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        asset_id INTEGER,
+        employee_id INTEGER,
+        assigned_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+
+    )
+
+    """)
+
+    # DEFAULT ADMIN USER
+
+    hashed_password = generate_password_hash("admin123")
+
+    cursor.execute("""
+
+    INSERT OR IGNORE INTO users (
+        id,
+        username,
+        password
+    )
+
+    VALUES (?, ?, ?)
+
+    """, (
+        1,
+        "admin",
+        hashed_password
+    ))
+
+    conn.commit()
+
+    conn.close()
+
+
+# RUN DATABASE CREATION
+
+create_tables()
+
+
+# =========================
 # LOGIN CHECK
+# =========================
 
 def login_required():
 
@@ -43,7 +148,9 @@ def login_required():
     return True
 
 
+# =========================
 # LOGIN
+# =========================
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
@@ -54,9 +161,8 @@ def login():
         password = request.form["password"]
 
         conn = get_db_connection()
-        cursor = conn.cursor()
 
-        # GET USER
+        cursor = conn.cursor()
 
         cursor.execute(
             "SELECT * FROM users WHERE username=?",
@@ -66,8 +172,6 @@ def login():
         user = cursor.fetchone()
 
         conn.close()
-
-        # CHECK HASHED PASSWORD
 
         if user and check_password_hash(
             user["password"],
@@ -83,7 +187,9 @@ def login():
     return render_template("login.html")
 
 
+# =========================
 # LOGOUT
+# =========================
 
 @app.route("/logout")
 def logout():
@@ -93,7 +199,9 @@ def logout():
     return redirect("/login")
 
 
+# =========================
 # HOME
+# =========================
 
 @app.route("/")
 def home():
@@ -104,9 +212,10 @@ def home():
     search = request.args.get("search", "")
 
     conn = get_db_connection()
+
     cursor = conn.cursor()
 
-    # SEARCH ASSETS
+    # SEARCH
 
     if search:
 
@@ -172,8 +281,6 @@ def home():
         [a for a in assets if a["status"] == "Assigned"]
     )
 
-    # CHART DATA
-
     chart_data = {
         "Available": available_assets,
         "Assigned": assigned_assets
@@ -189,12 +296,14 @@ def home():
         total_assets=total_assets,
         available_assets=available_assets,
         assigned_assets=assigned_assets,
-        search=search,
-        chart_data=chart_data
+        chart_data=chart_data,
+        search=search
     )
 
 
+# =========================
 # ADD ASSET
+# =========================
 
 @app.route("/add", methods=["POST"])
 def add_asset():
@@ -207,9 +316,10 @@ def add_asset():
     serial_number = request.form["serial_number"]
 
     conn = get_db_connection()
+
     cursor = conn.cursor()
 
-    # CHECK DUPLICATE SERIAL NUMBER
+    # CHECK DUPLICATE
 
     cursor.execute(
         "SELECT * FROM assets WHERE serial_number=?",
@@ -224,12 +334,11 @@ def add_asset():
 
         return "Serial Number Already Exists"
 
-    # INSERT ASSET
+    # INSERT
 
     cursor.execute("""
 
-        INSERT INTO assets
-        (
+        INSERT INTO assets (
             asset_name,
             asset_type,
             serial_number,
@@ -246,12 +355,15 @@ def add_asset():
     ))
 
     conn.commit()
+
     conn.close()
 
     return redirect("/")
 
 
+# =========================
 # EDIT ASSET
+# =========================
 
 @app.route("/edit_asset/<int:asset_id>", methods=["GET", "POST"])
 def edit_asset(asset_id):
@@ -260,6 +372,7 @@ def edit_asset(asset_id):
         return redirect("/login")
 
     conn = get_db_connection()
+
     cursor = conn.cursor()
 
     if request.method == "POST":
@@ -289,6 +402,7 @@ def edit_asset(asset_id):
         ))
 
         conn.commit()
+
         conn.close()
 
         return redirect("/")
@@ -308,7 +422,9 @@ def edit_asset(asset_id):
     )
 
 
+# =========================
 # DELETE ASSET
+# =========================
 
 @app.route("/delete_asset/<int:asset_id>")
 def delete_asset(asset_id):
@@ -317,16 +433,13 @@ def delete_asset(asset_id):
         return redirect("/login")
 
     conn = get_db_connection()
-    cursor = conn.cursor()
 
-    # DELETE ASSIGNMENTS
+    cursor = conn.cursor()
 
     cursor.execute(
         "DELETE FROM assignments WHERE asset_id=?",
         (asset_id,)
     )
-
-    # DELETE ASSET
 
     cursor.execute(
         "DELETE FROM assets WHERE id=?",
@@ -334,12 +447,15 @@ def delete_asset(asset_id):
     )
 
     conn.commit()
+
     conn.close()
 
     return redirect("/")
 
 
+# =========================
 # ADD EMPLOYEE
+# =========================
 
 @app.route("/add_employee", methods=["POST"])
 def add_employee():
@@ -351,12 +467,12 @@ def add_employee():
     department = request.form["department"]
 
     conn = get_db_connection()
+
     cursor = conn.cursor()
 
     cursor.execute("""
 
-        INSERT INTO employees
-        (
+        INSERT INTO employees (
             employee_name,
             department
         )
@@ -369,12 +485,15 @@ def add_employee():
     ))
 
     conn.commit()
+
     conn.close()
 
     return redirect("/")
 
 
+# =========================
 # ASSIGN ASSET
+# =========================
 
 @app.route("/assign_asset", methods=["POST"])
 def assign_asset():
@@ -386,9 +505,8 @@ def assign_asset():
     employee_id = request.form["employee_id"]
 
     conn = get_db_connection()
-    cursor = conn.cursor()
 
-    # CHECK ASSET
+    cursor = conn.cursor()
 
     cursor.execute(
         "SELECT * FROM assets WHERE id=?",
@@ -403,8 +521,6 @@ def assign_asset():
 
         return "Asset Not Found"
 
-    # CHECK STATUS
-
     if asset["status"] == "Assigned":
 
         conn.close()
@@ -415,8 +531,7 @@ def assign_asset():
 
     cursor.execute("""
 
-        INSERT INTO assignments
-        (
+        INSERT INTO assignments (
             asset_id,
             employee_id
         )
@@ -441,12 +556,15 @@ def assign_asset():
     """, (asset_id,))
 
     conn.commit()
+
     conn.close()
 
     return redirect("/")
 
 
+# =========================
 # RETURN ASSET
+# =========================
 
 @app.route("/return_asset/<int:assignment_id>")
 def return_asset(assignment_id):
@@ -455,9 +573,8 @@ def return_asset(assignment_id):
         return redirect("/login")
 
     conn = get_db_connection()
-    cursor = conn.cursor()
 
-    # GET ASSET ID
+    cursor = conn.cursor()
 
     cursor.execute("""
 
@@ -473,8 +590,6 @@ def return_asset(assignment_id):
 
         asset_id = assignment["asset_id"]
 
-        # UPDATE STATUS
-
         cursor.execute("""
 
             UPDATE assets
@@ -484,8 +599,6 @@ def return_asset(assignment_id):
             WHERE id=?
 
         """, (asset_id,))
-
-        # DELETE ASSIGNMENT
 
         cursor.execute("""
 
@@ -501,7 +614,9 @@ def return_asset(assignment_id):
     return redirect("/")
 
 
+# =========================
 # EXPORT ASSETS
+# =========================
 
 @app.route("/export_assets")
 def export_assets():
@@ -510,6 +625,7 @@ def export_assets():
         return redirect("/login")
 
     conn = get_db_connection()
+
     cursor = conn.cursor()
 
     cursor.execute("SELECT * FROM assets")
@@ -519,6 +635,7 @@ def export_assets():
     conn.close()
 
     wb = Workbook()
+
     ws = wb.active
 
     ws.title = "Assets"
@@ -551,7 +668,9 @@ def export_assets():
     )
 
 
+# =========================
 # EXPORT EMPLOYEES
+# =========================
 
 @app.route("/export_employees")
 def export_employees():
@@ -560,6 +679,7 @@ def export_employees():
         return redirect("/login")
 
     conn = get_db_connection()
+
     cursor = conn.cursor()
 
     cursor.execute("SELECT * FROM employees")
@@ -569,6 +689,7 @@ def export_employees():
     conn.close()
 
     wb = Workbook()
+
     ws = wb.active
 
     ws.title = "Employees"
@@ -597,7 +718,9 @@ def export_employees():
     )
 
 
+# =========================
 # RUN APPLICATION
+# =========================
 
 if __name__ == "__main__":
 
@@ -605,6 +728,6 @@ if __name__ == "__main__":
 
     app.run(
         host="0.0.0.0",
-        port=5000,
-        debug=True
+        port=port
     )
+

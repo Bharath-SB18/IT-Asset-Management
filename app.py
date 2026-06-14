@@ -1,4 +1,4 @@
-
+```python
 from flask import (
     Flask,
     render_template,
@@ -24,9 +24,9 @@ app = Flask(__name__)
 app.secret_key = "asset_management_secret"
 
 
-# =========================
+# =========================================
 # DATABASE CONNECTION
-# =========================
+# =========================================
 
 def get_db_connection():
 
@@ -37,9 +37,9 @@ def get_db_connection():
     return conn
 
 
-# =========================
-# CREATE DATABASE TABLES
-# =========================
+# =========================================
+# CREATE TABLES
+# =========================================
 
 def create_tables():
 
@@ -47,7 +47,7 @@ def create_tables():
 
     cursor = conn.cursor()
 
-    # USERS TABLE
+    # USERS
 
     cursor.execute("""
 
@@ -61,7 +61,7 @@ def create_tables():
 
     """)
 
-    # ASSETS TABLE
+    # ASSETS
 
     cursor.execute("""
 
@@ -77,7 +77,7 @@ def create_tables():
 
     """)
 
-    # EMPLOYEES TABLE
+    # EMPLOYEES
 
     cursor.execute("""
 
@@ -91,7 +91,7 @@ def create_tables():
 
     """)
 
-    # ASSIGNMENTS TABLE
+    # ASSIGNMENTS
 
     cursor.execute("""
 
@@ -106,7 +106,7 @@ def create_tables():
 
     """)
 
-    # DEFAULT ADMIN USER
+    # DEFAULT ADMIN
 
     hashed_password = generate_password_hash("admin123")
 
@@ -131,14 +131,12 @@ def create_tables():
     conn.close()
 
 
-# RUN DATABASE CREATION
-
 create_tables()
 
 
-# =========================
+# =========================================
 # LOGIN CHECK
-# =========================
+# =========================================
 
 def login_required():
 
@@ -148,9 +146,9 @@ def login_required():
     return True
 
 
-# =========================
+# =========================================
 # LOGIN
-# =========================
+# =========================================
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
@@ -158,6 +156,7 @@ def login():
     if request.method == "POST":
 
         username = request.form["username"]
+
         password = request.form["password"]
 
         conn = get_db_connection()
@@ -187,9 +186,9 @@ def login():
     return render_template("login.html")
 
 
-# =========================
+# =========================================
 # LOGOUT
-# =========================
+# =========================================
 
 @app.route("/logout")
 def logout():
@@ -199,9 +198,9 @@ def logout():
     return redirect("/login")
 
 
-# =========================
+# =========================================
 # HOME
-# =========================
+# =========================================
 
 @app.route("/")
 def home():
@@ -235,13 +234,17 @@ def home():
 
     else:
 
-        cursor.execute("SELECT * FROM assets")
+        cursor.execute(
+            "SELECT * FROM assets"
+        )
 
     assets = cursor.fetchall()
 
     # EMPLOYEES
 
-    cursor.execute("SELECT * FROM employees")
+    cursor.execute(
+        "SELECT * FROM employees"
+    )
 
     employees = cursor.fetchall()
 
@@ -250,7 +253,6 @@ def home():
     cursor.execute("""
 
         SELECT assignments.id,
-               assignments.asset_id,
                assets.asset_name,
                employees.employee_name,
                assignments.assigned_date
@@ -273,18 +275,15 @@ def home():
 
     total_assets = len(assets)
 
-    available_assets = len(
-        [a for a in assets if a["status"] == "Available"]
-    )
+    available_assets = len([
+        a for a in assets
+        if a["status"] == "Available"
+    ])
 
-    assigned_assets = len(
-        [a for a in assets if a["status"] == "Assigned"]
-    )
-
-    chart_data = {
-        "Available": available_assets,
-        "Assigned": assigned_assets
-    }
+    assigned_assets = len([
+        a for a in assets
+        if a["status"] == "Assigned"
+    ])
 
     conn.close()
 
@@ -296,14 +295,13 @@ def home():
         total_assets=total_assets,
         available_assets=available_assets,
         assigned_assets=assigned_assets,
-        chart_data=chart_data,
         search=search
     )
 
 
-# =========================
+# =========================================
 # ADD ASSET
-# =========================
+# =========================================
 
 @app.route("/add", methods=["POST"])
 def add_asset():
@@ -312,7 +310,9 @@ def add_asset():
         return redirect("/login")
 
     asset_name = request.form["asset_name"]
+
     asset_type = request.form["asset_type"]
+
     serial_number = request.form["serial_number"]
 
     conn = get_db_connection()
@@ -361,9 +361,9 @@ def add_asset():
     return redirect("/")
 
 
-# =========================
+# =========================================
 # EDIT ASSET
-# =========================
+# =========================================
 
 @app.route("/edit_asset/<int:asset_id>", methods=["GET", "POST"])
 def edit_asset(asset_id):
@@ -378,8 +378,11 @@ def edit_asset(asset_id):
     if request.method == "POST":
 
         asset_name = request.form["asset_name"]
+
         asset_type = request.form["asset_type"]
+
         serial_number = request.form["serial_number"]
+
         status = request.form["status"]
 
         cursor.execute("""
@@ -422,9 +425,9 @@ def edit_asset(asset_id):
     )
 
 
-# =========================
+# =========================================
 # DELETE ASSET
-# =========================
+# =========================================
 
 @app.route("/delete_asset/<int:asset_id>")
 def delete_asset(asset_id):
@@ -453,9 +456,9 @@ def delete_asset(asset_id):
     return redirect("/")
 
 
-# =========================
+# =========================================
 # ADD EMPLOYEE
-# =========================
+# =========================================
 
 @app.route("/add_employee", methods=["POST"])
 def add_employee():
@@ -464,6 +467,7 @@ def add_employee():
         return redirect("/login")
 
     employee_name = request.form["employee_name"]
+
     department = request.form["department"]
 
     conn = get_db_connection()
@@ -491,9 +495,9 @@ def add_employee():
     return redirect("/")
 
 
-# =========================
+# =========================================
 # ASSIGN ASSET
-# =========================
+# =========================================
 
 @app.route("/assign_asset", methods=["POST"])
 def assign_asset():
@@ -502,6 +506,7 @@ def assign_asset():
         return redirect("/login")
 
     asset_id = request.form["asset_id"]
+
     employee_id = request.form["employee_id"]
 
     conn = get_db_connection()
@@ -562,9 +567,9 @@ def assign_asset():
     return redirect("/")
 
 
-# =========================
+# =========================================
 # RETURN ASSET
-# =========================
+# =========================================
 
 @app.route("/return_asset/<int:assignment_id>")
 def return_asset(assignment_id):
@@ -614,9 +619,9 @@ def return_asset(assignment_id):
     return redirect("/")
 
 
-# =========================
+# =========================================
 # EXPORT ASSETS
-# =========================
+# =========================================
 
 @app.route("/export_assets")
 def export_assets():
@@ -628,7 +633,9 @@ def export_assets():
 
     cursor = conn.cursor()
 
-    cursor.execute("SELECT * FROM assets")
+    cursor.execute(
+        "SELECT * FROM assets"
+    )
 
     assets = cursor.fetchall()
 
@@ -668,9 +675,9 @@ def export_assets():
     )
 
 
-# =========================
+# =========================================
 # EXPORT EMPLOYEES
-# =========================
+# =========================================
 
 @app.route("/export_employees")
 def export_employees():
@@ -682,7 +689,9 @@ def export_employees():
 
     cursor = conn.cursor()
 
-    cursor.execute("SELECT * FROM employees")
+    cursor.execute(
+        "SELECT * FROM employees"
+    )
 
     employees = cursor.fetchall()
 
@@ -718,9 +727,9 @@ def export_employees():
     )
 
 
-# =========================
-# RUN APPLICATION
-# =========================
+# =========================================
+# RUN APP
+# =========================================
 
 if __name__ == "__main__":
 
@@ -730,4 +739,4 @@ if __name__ == "__main__":
         host="0.0.0.0",
         port=port
     )
-
+```

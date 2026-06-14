@@ -1,322 +1,316 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>IT Asset Management System</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-</head>
+{% extends "base.html" %}
 
-<body>
+{% block content %}
 
-<div class="container mt-4">
+<!-- PAGE HEADER -->
 
-    <a href="/logout" class="btn btn-danger float-end">
-    Logout
-</a>
+<div class="d-flex justify-content-between align-items-center mb-4">
 
-<h1 class="text-center mb-4">
-    IT Asset Management System
-</h1>
+    <div>
 
-<a href="/export_assets" class="btn btn-success mb-3">
-    Export Assets to Excel
-</a>
+        <h2 class="fw-bold">
 
-<a href="/export_employees" class="btn btn-info mb-3">
-    Export Employees to Excel
-</a>
+            <i class="bi bi-speedometer2"></i>
+            Dashboard
+
+        </h2>
+
+        <p class="text-muted">
+
+            Manage IT assets, employees and assignments
+
+        </p>
+
+    </div>
+
+    <div>
+
+        <a href="/export_assets"
+           class="btn btn-success">
+
+            <i class="bi bi-file-earmark-excel"></i>
+            Assets Excel
+
+        </a>
+
+        <a href="/export_employees"
+           class="btn btn-info text-white">
+
+            <i class="bi bi-file-earmark-excel"></i>
+            Employees Excel
+
+        </a>
+
+    </div>
+
+</div>
 
 
-    <!-- Search -->
+<!-- SEARCH BAR -->
 
-    <form method="GET" action="/" class="mb-4">
+<div class="search-bar">
 
-        <div class="row">
+    <form method="GET" action="/">
+
+        <div class="row g-3">
 
             <div class="col-md-10">
+
                 <input
                     type="text"
                     class="form-control"
                     name="search"
                     placeholder="Search Asset Name, Type or Serial Number"
                     value="{{ search }}">
+
             </div>
 
             <div class="col-md-2">
+
                 <button class="btn btn-dark w-100">
+
+                    <i class="bi bi-search"></i>
                     Search
+
                 </button>
+
             </div>
 
         </div>
 
     </form>
 
-    <!-- Dashboard -->
+</div>
 
-    <div class="row mb-4">
 
-        <div class="col-md-4">
-            <div class="card text-center shadow">
-                <div class="card-body">
-                    <h5>Total Assets</h5>
-                    <h2>{{ total_assets }}</h2>
-                </div>
-            </div>
-        </div>
+<!-- DASHBOARD CARDS -->
 
-        <div class="col-md-4">
-            <div class="card text-center shadow">
-                <div class="card-body">
-                    <h5>Available Assets</h5>
-                    <h2>{{ available_assets }}</h2>
-                </div>
-            </div>
-        </div>
+<div class="row mb-4">
 
-        <div class="col-md-4">
-            <div class="card text-center shadow">
-                <div class="card-body">
-                    <h5>Assigned Assets</h5>
-                    <h2>{{ assigned_assets }}</h2>
-                </div>
-            </div>
+    <div class="col-md-4 mb-3">
+
+        <div class="dashboard-card">
+
+            <i class="bi bi-pc-display fs-1 text-primary"></i>
+
+            <h5 class="mt-3">Total Assets</h5>
+
+            <h3>{{ total_assets }}</h3>
+
         </div>
 
     </div>
 
-    <hr>
+    <div class="col-md-4 mb-3">
 
-    <!-- Add Asset -->
+        <div class="dashboard-card">
 
-    <h3>Add Asset</h3>
+            <i class="bi bi-check-circle fs-1 text-success"></i>
 
-    <form action="/add" method="POST">
+            <h5 class="mt-3">Available Assets</h5>
 
-        <div class="row">
-
-            <div class="col-md-4">
-                <input type="text"
-                       class="form-control"
-                       name="asset_name"
-                       placeholder="Asset Name"
-                       required>
-            </div>
-
-            <div class="col-md-3">
-                <input type="text"
-                       class="form-control"
-                       name="asset_type"
-                       placeholder="Asset Type"
-                       required>
-            </div>
-
-            <div class="col-md-3">
-                <input type="text"
-                       class="form-control"
-                       name="serial_number"
-                       placeholder="Serial Number"
-                       required>
-            </div>
-
-            <div class="col-md-2">
-                <button class="btn btn-primary w-100">
-                    Add Asset
-                </button>
-            </div>
+            <h3>{{ available_assets }}</h3>
 
         </div>
 
-    </form>
+    </div>
 
-    <hr>
+    <div class="col-md-4 mb-3">
 
-    <!-- Asset List -->
+        <div class="dashboard-card">
 
-    <h3>Asset List</h3>
+            <i class="bi bi-box-seam fs-1 text-danger"></i>
 
-    <table class="table table-bordered table-striped">
+            <h5 class="mt-3">Assigned Assets</h5>
 
-        <thead class="table-dark">
+            <h3>{{ assigned_assets }}</h3>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- ASSET ANALYTICS -->
+
+<h3 class="section-title">
+
+    <i class="bi bi-pie-chart"></i>
+    Asset Analytics
+
+</h3>
+
+<div class="card shadow-sm border-0 mb-4">
+
+    <div class="card-body text-center">
+
+        <div style="max-width: 500px; margin:auto;">
+
+            
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- ADD ASSET -->
+
+<h3 class="section-title">
+
+    <i class="bi bi-plus-circle"></i>
+    Add Asset
+
+</h3>
+
+<div class="card shadow-sm border-0 mb-4">
+
+    <div class="card-body">
+
+        <form action="/add" method="POST">
+
+            <div class="row g-3">
+
+                <div class="col-md-4">
+
+                    <input
+                        type="text"
+                        class="form-control"
+                        name="asset_name"
+                        placeholder="Asset Name"
+                        required>
+
+                </div>
+
+                <div class="col-md-3">
+
+                    <input
+                        type="text"
+                        class="form-control"
+                        name="asset_type"
+                        placeholder="Asset Type"
+                        required>
+
+                </div>
+
+                <div class="col-md-3">
+
+                    <input
+                        type="text"
+                        class="form-control"
+                        name="serial_number"
+                        placeholder="Serial Number"
+                        required>
+
+                </div>
+
+                <div class="col-md-2">
+
+                    <button class="btn btn-primary w-100">
+
+                        <i class="bi bi-plus-lg"></i>
+                        Add
+
+                    </button>
+
+                </div>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+
+<!-- ASSET LIST -->
+
+<h3 class="section-title">
+
+    <i class="bi bi-laptop"></i>
+    Asset List
+
+</h3>
+
+<div class="table-responsive mb-4">
+
+    <table class="table table-bordered table-hover align-middle">
+
+        <thead>
+
             <tr>
+
                 <th>ID</th>
                 <th>Asset Name</th>
                 <th>Type</th>
                 <th>Serial Number</th>
                 <th>Status</th>
                 <th>Actions</th>
+
             </tr>
+
         </thead>
 
         <tbody>
 
         {% for asset in assets %}
+
             <tr>
-                <td>{{ asset[0] }}</td>
-                <td>{{ asset[1] }}</td>
-                <td>{{ asset[2] }}</td>
-                <td>{{ asset[3] }}</td>
-                <td>{{ asset[4] }}</td>
+
+                <td>{{ asset["id"] }}</td>
+
+                <td>{{ asset["asset_name"] }}</td>
+
+                <td>{{ asset["asset_type"] }}</td>
+
+                <td>{{ asset["serial_number"] }}</td>
 
                 <td>
 
-                    <a href="/edit_asset/{{ asset[0] }}"
+                    {% if asset["status"] == "Available" %}
+
+                        <span class="badge bg-success">
+
+                            Available
+
+                        </span>
+
+                    {% else %}
+
+                        <span class="badge bg-danger">
+
+                            Assigned
+
+                        </span>
+
+                    {% endif %}
+
+                </td>
+
+                <td>
+
+                    <a href="/edit_asset/{{ asset['id'] }}"
                        class="btn btn-primary btn-sm">
-                       Edit
+
+                        <i class="bi bi-pencil-square"></i>
+
                     </a>
 
-                    <a href="/delete_asset/{{ asset[0] }}"
+                    <a href="/delete_asset/{{ asset['id'] }}"
                        class="btn btn-danger btn-sm"
                        onclick="return confirm('Delete this asset?')">
-                       Delete
+
+                        <i class="bi bi-trash"></i>
+
                     </a>
 
                 </td>
 
             </tr>
-        {% endfor %}
 
-        </tbody>
-
-    </table>
-
-    <hr>
-
-    <!-- Employee Management -->
-
-    <h3>Employee Management</h3>
-
-    <form action="/add_employee" method="POST">
-
-        <div class="row">
-
-            <div class="col-md-5">
-                <input type="text"
-                       class="form-control"
-                       name="employee_name"
-                       placeholder="Employee Name"
-                       required>
-            </div>
-
-            <div class="col-md-5">
-                <input type="text"
-                       class="form-control"
-                       name="department"
-                       placeholder="Department"
-                       required>
-            </div>
-
-            <div class="col-md-2">
-                <button class="btn btn-success w-100">
-                    Add Employee
-                </button>
-            </div>
-
-        </div>
-
-    </form>
-
-    <br>
-
-    <table class="table table-bordered table-striped">
-
-        <thead class="table-success">
-            <tr>
-                <th>ID</th>
-                <th>Employee Name</th>
-                <th>Department</th>
-            </tr>
-        </thead>
-
-        <tbody>
-
-        {% for employee in employees %}
-            <tr>
-                <td>{{ employee[0] }}</td>
-                <td>{{ employee[1] }}</td>
-                <td>{{ employee[2] }}</td>
-            </tr>
-        {% endfor %}
-
-        </tbody>
-
-    </table>
-
-    <hr>
-
-    <!-- Assign Asset -->
-
-    <h3>Assign Asset</h3>
-
-    <form action="/assign_asset" method="POST">
-
-        <div class="row">
-
-            <div class="col-md-5">
-
-                <select class="form-select" name="asset_id">
-
-                    {% for asset in assets %}
-                        {% if asset[4] == 'Available' %}
-                            <option value="{{ asset[0] }}">
-                                {{ asset[1] }}
-                            </option>
-                        {% endif %}
-                    {% endfor %}
-
-                </select>
-
-            </div>
-
-            <div class="col-md-5">
-
-                <select class="form-select" name="employee_id">
-
-                    {% for employee in employees %}
-                        <option value="{{ employee[0] }}">
-                            {{ employee[1] }}
-                        </option>
-                    {% endfor %}
-
-                </select>
-
-            </div>
-
-            <div class="col-md-2">
-                <button class="btn btn-warning w-100">
-                    Assign
-                </button>
-            </div>
-
-        </div>
-
-    </form>
-
-    <hr>
-
-    <!-- Assignment History -->
-
-    <h3>Assignment History</h3>
-
-    <table class="table table-bordered table-striped">
-
-        <thead class="table-warning">
-            <tr>
-                <th>ID</th>
-                <th>Asset</th>
-                <th>Employee</th>
-                <th>Assigned Date</th>
-            </tr>
-        </thead>
-
-        <tbody>
-
-        {% for assignment in assignments %}
-            <tr>
-                <td>{{ assignment[0] }}</td>
-                <td>{{ assignment[1] }}</td>
-                <td>{{ assignment[2] }}</td>
-                <td>{{ assignment[3] }}</td>
-            </tr>
         {% endfor %}
 
         </tbody>
@@ -325,5 +319,248 @@
 
 </div>
 
-</body>
-</html>
+
+<!-- EMPLOYEE MANAGEMENT -->
+
+<h3 class="section-title">
+
+    <i class="bi bi-people"></i>
+    Employee Management
+
+</h3>
+
+<div class="card shadow-sm border-0 mb-4">
+
+    <div class="card-body">
+
+        <form action="/add_employee" method="POST">
+
+            <div class="row g-3">
+
+                <div class="col-md-5">
+
+                    <input
+                        type="text"
+                        class="form-control"
+                        name="employee_name"
+                        placeholder="Employee Name"
+                        required>
+
+                </div>
+
+                <div class="col-md-5">
+
+                    <input
+                        type="text"
+                        class="form-control"
+                        name="department"
+                        placeholder="Department"
+                        required>
+
+                </div>
+
+                <div class="col-md-2">
+
+                    <button class="btn btn-success w-100">
+
+                        <i class="bi bi-person-plus"></i>
+                        Add
+
+                    </button>
+
+                </div>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+
+<div class="table-responsive mb-4">
+
+    <table class="table table-bordered table-hover align-middle">
+
+        <thead>
+
+            <tr>
+
+                <th>ID</th>
+                <th>Employee Name</th>
+                <th>Department</th>
+
+            </tr>
+
+        </thead>
+
+        <tbody>
+
+        {% for employee in employees %}
+
+            <tr>
+
+                <td>{{ employee["id"] }}</td>
+
+                <td>{{ employee["employee_name"] }}</td>
+
+                <td>{{ employee["department"] }}</td>
+
+            </tr>
+
+        {% endfor %}
+
+        </tbody>
+
+    </table>
+
+</div>
+
+
+<!-- ASSIGN ASSET -->
+
+<h3 class="section-title">
+
+    <i class="bi bi-arrow-left-right"></i>
+    Assign Asset
+
+</h3>
+
+<div class="card shadow-sm border-0 mb-4">
+
+    <div class="card-body">
+
+        <form action="/assign_asset" method="POST">
+
+            <div class="row g-3">
+
+                <div class="col-md-5">
+
+                    <select class="form-select"
+                            name="asset_id"
+                            required>
+
+                        {% for asset in assets %}
+
+                            {% if asset["status"] == "Available" %}
+
+                                <option value="{{ asset['id'] }}">
+
+                                    {{ asset["asset_name"] }}
+
+                                </option>
+
+                            {% endif %}
+
+                        {% endfor %}
+
+                    </select>
+
+                </div>
+
+                <div class="col-md-5">
+
+                    <select class="form-select"
+                            name="employee_id"
+                            required>
+
+                        {% for employee in employees %}
+
+                            <option value="{{ employee['id'] }}">
+
+                                {{ employee["employee_name"] }}
+
+                            </option>
+
+                        {% endfor %}
+
+                    </select>
+
+                </div>
+
+                <div class="col-md-2">
+
+                    <button class="btn btn-warning w-100">
+
+                        <i class="bi bi-send"></i>
+                        Assign
+
+                    </button>
+
+                </div>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+
+<!-- ASSIGNMENT HISTORY -->
+
+<h3 class="section-title">
+
+    <i class="bi bi-clock-history"></i>
+    Assignment History
+
+</h3>
+
+<div class="table-responsive">
+
+    <table class="table table-bordered table-hover align-middle">
+
+        <thead>
+
+            <tr>
+
+                <th>ID</th>
+                <th>Asset</th>
+                <th>Employee</th>
+                <th>Assigned Date</th>
+                <th>Action</th>
+
+            </tr>
+
+        </thead>
+
+        <tbody>
+
+        {% for assignment in assignments %}
+
+            <tr>
+
+                <td>{{ assignment["id"] }}</td>
+
+                <td>{{ assignment["asset_name"] }}</td>
+
+                <td>{{ assignment["employee_name"] }}</td>
+
+                <td>{{ assignment["assigned_date"] }}</td>
+
+                <td>
+
+                    <a href="/return_asset/{{ assignment['id'] }}"
+                       class="btn btn-success btn-sm"
+                       onclick="return confirm('Return this asset?')">
+
+                        <i class="bi bi-arrow-return-left"></i>
+                        Return
+
+                    </a>
+
+                </td>
+
+            </tr>
+
+        {% endfor %}
+
+        </tbody>
+
+    </table>
+
+</div>
+
+{% endblock %}
